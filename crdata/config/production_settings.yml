@@ -1,0 +1,7 @@
+host:
+  hostname: crdata.org
+  worker_image: ami-59d93730  
+
+aws:
+  password: Crdt3Hs9
+  salt:     F36t67K  

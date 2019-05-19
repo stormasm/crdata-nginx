@@ -1,0 +1,11 @@
+<% if flash[:notice] %>
+  <% content_tag(:div, :id => 'success', :class => 'notice') do %>
+    <%= link_to('close', 'javascript:', :class => 'notice-close', :onclick => "$('success').remove();")%>
+    <%= flash[:notice] %>
+  <% end %>
+<% elsif flash[:error] %>
+  <% content_tag(:div, :id => 'error', :class => 'notice') do %>
+    <%= link_to('close', 'javascript:', :class => 'notice-close', :onclick => "$('error').remove();")%>
+    <%= flash[:error] %>
+  <% end %>
+<% end %>

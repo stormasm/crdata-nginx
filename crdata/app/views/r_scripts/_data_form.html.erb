@@ -1,0 +1,21 @@
+<%= content_tag(:h2, 'Parameters') unless r_script.parameters.blank? %>
+<% r_script.parameters.each do |parameter| %>
+  <% i = r_script.parameters.index(parameter) %> 
+  <% content_tag(:div, :id => "job_job_parameters_attributes_#{i}_value_input") do %>
+    <%= label_tag("job_job_parameters_attributes_#{i}_value", "#{parameter.title} (#{parameter.kind})") %>
+    <% if parameter.kind == 'Dataset' %>
+      <%= collection_select("job[job_parameters_attributes][#{i}]", :data_set_id, (current_user) ? current_user.data_sets : DataSet.public_data_sets, :id, :name) %>
+      <%= link_to('or upload a dataset file', '#', :onclick => "$('data_set_form').style.visibility = 'visible'; $('index').value = '#{i}'; return false;") %>
+    <% elsif parameter.kind == 'Boolean' %>
+      <%= select_tag("job[job_parameters_attributes][#{i}][value]", options_for_select({'true' => 1, 'false' => 0}, parameter.default_value.to_i)) %>
+    <% elsif parameter.kind == 'Enumeration' %>
+      <%= select_tag("job[job_parameters_attributes][#{i}][value]", get_enum_options(parameter.min_value, parameter.max_value, parameter.increment_value)) %>
+    <% elsif parameter.kind == 'List' %>
+      <%= select_tag("job[job_parameters_attributes][#{i}][value]", options_for_select(parameter.default_value.split(','))) %>
+    <% else %>
+      <%= text_field_tag("job[job_parameters_attributes][#{i}][value]", ( @job and @job.job_parameters[i]) ? @job.job_parameters[i].value : parameter.default_value) %>
+    <% end %>
+    <%= hidden_field_tag("job[job_parameters_attributes][#{i}][parameter_id]", parameter.id) %>
+    <%= content_tag(:p, @job.job_parameters[i].errors.on(:value), :class => 'inline-errors') if @job and @job.job_parameters[i] and !@job.job_parameters[i].errors.size.zero? %>
+  <% end %>
+<% end %>

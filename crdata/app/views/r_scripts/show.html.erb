@@ -1,0 +1,24 @@
+<% content_for(:intro) do %>
+  <%= content_tag(:h1, 'Manage Scripts') %>
+  <%= content_tag(:p, 'Use the interactive interface below to manage your R scripts.', :class => 'solo') %>
+<% end %>
+
+<% content_for(:content) do %>
+  <h2>
+    <span>R Script:</span>
+    <%=h @r_script.name %>
+  </h2>
+  <p>
+    <strong>Effort level:</strong>
+    <%=h @r_script.effort_level %><br />
+    <strong>Description:</strong>
+    <%=h @r_script.description %>
+  </p>
+
+  <h3>Source code:</h3>
+  <hr size="0" />  
+  <%=simple_format(@r_script.source_code) %>
+
+  <hr size="0" />  
+  <%= link_to 'Back', r_scripts_path %>
+<% end %>

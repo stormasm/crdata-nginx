@@ -1,0 +1,26 @@
+<% content_for(:intro) do %>
+  <%= content_tag(:h1, 'Manage Datasets') %>
+  <%= content_tag(:p, 'Use the interactive interface below to manage your data.', :class => 'solo') %>
+<% end %>
+
+<% content_for(:content) do %>
+  <h2>
+    <span>Name:</span>
+    <%=h @data_set.name %>
+  </h2>
+  <p>
+    <b>Description:</b>
+    <%=h @data_set.description %>
+  <%= content_tag(:p, "Dataset file: #{link_to(@data_set.url, @data_set.url, :target => :blank)}") if @data_set.is_public %>
+  <p>
+    <b>Jobs:</b>
+    <%= @data_set.jobs.collect{|job| link_to(job.id, job) }.join(', ') %>
+  </p>
+  <p>
+    <b>Tags:</b>
+    <%= @data_set.tag_list.join(', ') %>
+  </p>
+
+  <%= content_tag(:span, link_to('Edit', edit_data_set_path(@data_set)), :class => 'spark-adv-submit') %>
+  <%= content_tag(:span, link_to('Back', data_sets_path), :class => 'form-cancel') %>
+<% end %>

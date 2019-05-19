@@ -1,0 +1,20 @@
+login: &login
+  adapter: postgresql
+  username: postgres
+  password: sebi123
+  encoding: UTF8
+
+development:
+  database: crdata_dev
+  <<: *login  
+
+test:
+  database: crdata_test
+  <<: *login
+  
+production:
+  database: crdata_production
+  <<: *login
+
+cucumber:
+  <<: *TEST

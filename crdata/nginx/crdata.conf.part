@@ -1,0 +1,97 @@
+# Gzip compression
+       gzip on;
+       gzip_http_version 1.0;
+       gzip_comp_level 2;
+       gzip_proxied any;
+       gzip_types text/plain text/html text/css application/x-javascript text/xml application/xml+rss text/javascript;
+
+       # doc root
+       root /crdata/public;
+
+       # Error handling
+       proxy_intercept_errors on;
+       error_page   500 502 503 504 /50x.html;
+       error_page   404 400 403 /40x.html;
+
+      client_header_buffer_size    8k;
+      large_client_header_buffers  8 8k;
+
+      client_body_buffer_size    128k;
+      proxy_buffer_size          16k;
+      proxy_buffers              4 32k;
+      proxy_busy_buffers_size    64k;
+      proxy_temp_file_write_size 64k;
+
+       # Setting to staticly serve the assets
+       # Add expires header for static content
+       location ~* \.(js|css)$ {
+          if (-f $request_filename) {
+              expires      max;
+              break;
+           }
+       }
+
+       # Add expires header for static content images
+       location ~* ^(/images/).*\.(jpg|jpeg|gif|png)$ {
+          if (-f $request_filename) {
+              expires      max;
+              break;
+           }
+       }
+
+
+       client_max_body_size 500M;
+   location / {
+         # IP blockage controls
+         include 'denies.list';
+
+         # needed to forward user's IP address to rails
+         proxy_set_header  X-Real-IP  $remote_addr;
+
+         # needed for HTTPS
+         proxy_set_header X-Forwarded-Proto $client_proto;
+         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+         proxy_set_header Host $http_host;
+         proxy_redirect false;
+         proxy_max_temp_file_size 0;
+
+         # If the file exists as a static file serve it directly without
+         # running all the other rewite tests on it
+         if (-f $request_filename) {
+           break;
+         }
+
+         # this rewrites all the requests to the maintenance.html
+         # page if it exists in the doc root. This is for capistrano's
+         # disable web task
+         if (-f $document_root/maintenance.html) {
+           expires -1;
+           rewrite  ^(.*)$  /maintenance.html break;
+         }
+
+         # check for index.html for directory index
+         # if its there on the filesystem then rewite
+         # the url to add /index.html to the end of it
+         # and then break to send it to the next config rules.
+         if (-f $request_filename/index.html) {
+           rewrite (.*) $1/index.html break;
+         }
+        # this is the meat of the rails page caching config
+         # it adds .html to the end of the url and then checks
+         # the filesystem for that file. If it exists, then we
+         # rewite the url to have explicit .html on the end
+         # and then send it on its way to the next config rule.
+         # if there is no file on the fs then it sets all the
+         # necessary headers and proxies to our upstream mongrels
+         if (-f $request_filename.html) {
+           rewrite (.*) $1.html break;
+         }
+
+
+         if (!-f $request_filename) {
+           proxy_pass http://crdata_mongrels;
+           break;
+         }
+       }
+
+

@@ -1,0 +1,16 @@
+<% content_tag(:ul, :class => 'form') do %>
+  <%= form.input(:name, :input_html => { :class => 'text'}) %>
+  <%= clear(:li) %>
+
+  <li class="spark-adv-control">
+    <%= label_tag(:visibility) %>
+    <%= select_tag(:visibility, options_for_select(%w(private share) + ((current_user.is_site_admin?) ? ['public'] : []), visibility = get_visibility(form.object, params[:visibility])), :id => 'visibility') %>
+  </li>
+  
+  <% content_tag(:li, :id => 'select_groups', :style => (visibility == 'share') ? '' : 'display: none') do %>
+    <%= label_tag(:groups) %>
+    <%= select_tag(:groups, options_for_select((current_user.groups.approved - current_user.groups.default).collect{|group| [group.name, group.id.to_s]}, get_groups(form.object, params[:groups])), :multiple => true) %>
+  <% end %>
+  <%= clear(:li) %>
+<% end -%>
+

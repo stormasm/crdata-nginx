@@ -1,0 +1,40 @@
+<% content_for(:intro) do %>
+	<%= render(:partial => 'intro', :use_full_path => true) %>
+<% end -%>
+
+<% content_for(:content) do %>
+	
+	<h2>Use CRdata to</h2>
+	<ul class="bullet_list">
+		<li>Analyze your data in the Cloud
+			<p>- no need to buy or maintain your own CPU cluster <br />
+				- no need to maintain up-to-date versions of R and BioConductor
+			</p>
+		</li>
+		<li>Share your R code with non-computational people. CRdata’s simple Graphical User Interface hides the comlexity of R code
+			<p>- CRdata’s simple Graphical User Interface hides the comlexity of R code</p>
+		</li>
+		<li>Share your data/scripts with your collaborators (or the world!)</li>
+		<li>Share computational methods/data published in a journal paper. Make your Supplementary Materials interactive!
+			<p>- make your Supplementary Materials interactive!</p>
+		</li>
+		<li>Provide tailored data analysis resources to subscriber groups</li>
+		<li>Share classroom excercise scripts and data</li>
+	</ul>
+
+	<h2>Program the CRdata infrastructure to provide</h2>
+	<ul class="bullet_list"><li>Analysis resources via cell phones</li>
+	<li>Access to analysis environments other than R</li>
+	<li>Computation on processor nodes other than Amazon EC2</li>
+	<li>CRdata resources integrated into 3rd party software</li>
+	<li>New aggregation and filtering web services</li></ul>
+	
+	<p>To use CRdata as a Guest user, simply go the <%= link_to('Data tab', data_sets_path) %> and click on the <%= link_to('Add dataset button', new_data_set_path) %> at top right. Once you have loaded your data, go the the <%= link_to('Run analyses tab', jobs_path) %> and click <%= link_to('Add Job', new_job_path) %>. Once your run has started, refresh your browser to check its status.</p>
+	
+	<p>When the run is complete, you can click on the Results link for your run to see the results. If any errors occur, they will be listed in the log file (click the Logs link for your run). It’s as simple as that!</p>
+	
+	<% unless current_user %><br /><span class="spark-adv-submit"><%= link_to('Register Now', new_account_path) %></span><% end -%>
+	<%= clear %>
+	<br /><hr />
+	<p class="fade">This page is under construction. More 'how to' instructions to come soon!</p>
+<% end -%>

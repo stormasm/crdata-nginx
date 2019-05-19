@@ -1,0 +1,67 @@
+<% content_for(:intro) do %>
+	<h1>Manage Processing Nodes</h1>
+	<p class="solo">Use the interactive interface below to manage your Processing Nodes.</p>
+<% end -%>
+
+<% content_for(:content) do %>
+	<h2>New Processing Node</h2>
+
+  <% semantic_form_for(@processing_node, :url => processing_nodes_path(@processing_node, :donate => params[:donate])) do |form| %>
+    <% content_tag(:ul, :class => 'form') do %>
+      <%= form.input(:jobs_queue, :collection => (params[:donate] and params[:donate] == '1') ? JobsQueue.all - current_user.jobs_queues_admin: current_user.jobs_queues_admin, :label => 'Choose jobs queue', :input_html => { :class => 'text'}) %>
+      <%= clear(:li) %>
+      <% content_tag(:li, :class => 'reset', :id => 'manual_node', :style => (params[:node_type] and params[:node_type] == 'automatic') ? 'display:none' : '') do %><ul>
+        <%= form.input(:ip_address, :label => 'Manually add a non-EC2 node', :input_html => { :class => 'text'}) %>
+        <li id="help_link" class="spark-adv-control"><strong><%= link_to('Must read this!', '#', :onclick => 'show_help_link(event)') %></strong></li>
+        <li class="spark-adv-control" id="help_text" style="display: none">
+        <%= content_tag(:strong, link_to('Hide help', '#', {:id => 'hide_help_link'})) %>
+        <div class="help"><strong>Warning:</strong> CRdata requires all nodes attached to a single queue to have identical versions of R and identical package libraries. To ensure correct behavior, you must ensure compliance with this requirement.
+        </div>
+        </li>
+        <%= clear(:li) %>
+        <li class="spark-adv-control">
+          <%= content_tag(:strong, 'or ' + link_to('automatically create an Amazon EC2 node', '#', {:id => 'show_automatic_node_link'})) %>
+        </li>
+        <%= clear(:li) %>
+	  </ul><% end -%>
+ 			<% content_tag(:li, :class =>'reset', :id => 'automatic_node', :class => 'w600', :style => (params[:node_type] and params[:node_type] == 'automatic') ? '' : 'display: none') do %><ul>
+		        <% content_tag(:li, :class => 'spark-adv-control') do %>
+					<%= label_tag('aws_credentials[access_key_id]', 'Access Key Id') %>
+					<%= text_field_tag('aws_credentials[access_key_id]', (params[:aws_credentials]) ? params[:aws_credentials][:access_key_id] : '', :class => 'text') %>
+				<% end -%>
+		        <% content_tag(:li, :class => 'spark-adv-control') do %>		
+					<%= label_tag('aws_credentials[secret_access_key]', 'Secret Access Key') %>
+					<%= text_field_tag('aws_credentials[secret_access_key]', (params[:aws_credentials]) ? params[:aws_credentials][:secret_access_key] : '',  :class => 'text') %>
+				<% end -%>
+        <%= check_box_tag(:save_aws_keys) %>
+        <%= label_tag(:save_aws_keys, 'Save AWS Keys') %> 
+			<%= clear %>
+		        <% content_tag(:li, :class => 'spark-adv-control') do %>
+		          <%= label_tag(:ec2_instance_ami) %>
+		          <%= select_tag(:ec2_instance_ami, options_for_select({'32 bit' => WORKER_IMG, '64 bit' => WORKER_IMG}, params[:ec2_instance_ami])) %>
+		        <% end %>
+		        <% content_tag(:li, :class => 'spark-adv-control') do %>
+		          <%= label_tag(:ec2_instance_type) %>
+		          <%= select_tag(:ec2_instance_type, options_for_select(%w(m1.small m1.large m1.xlarge c1.medium c1.xlarge m2.xlarge m2.2xlarge m2.4xlarge), params[:ec2_instance_type])) %>
+		        <% end %>
+		        <%= hidden_field_tag(:node_type, params[:node_type] || 'manual') %>
+		        <%= content_tag(:p, @processing_node.errors.on(:node_type), :class => 'inline-errors') if @processing_node.errors.on(:node_type) %>
+		        <li class="spark-adv-control">
+		          <%= content_tag(:strong, 'or ' + link_to('manually create node', '#', {:id => 'show_manual_node_link'})) %>
+		          <strong id="help_link2">(<%= link_to('Must read this!', '#', :onclick => 'show_help_link2(event)') %>)</strong>
+		        </li>
+		        <li class="spark-adv-control" id="help_text2" style="display: none">
+		        <%= content_tag(:strong, link_to('Hide help', '#', {:id => 'hide_help_link2'})) %>
+		        <div class="help"><strong>Warning:</strong> CRdata requires all nodes attached to a single queue to have identical versions of R and identical package libraries. To ensure correct behavior, you must ensure compliance with this requirement.
+		        </div><br /><br /><br /><br /><br />
+		        </li>
+	    </ul><% end -%>
+	  <% end -%>
+		<%= clear %>
+    <% form.buttons do %>
+      <%= form.commit_button(:label => 'Create Processing Node') %>
+    <% end %>
+    <span class="form-cancel">or <%= link_to('Cancel', processing_nodes_path) %></span>
+  <% end %>
+	<%= javascript_include_tag('processing_nodes/new') %>
+<% end %>

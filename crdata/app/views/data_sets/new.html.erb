@@ -1,0 +1,60 @@
+<% content_for(:head) do %>
+   <%= javascript_include_tag :swf_upload %>
+ <% end -%>
+
+<% content_for(:intro) do %>
+	<h1>Manage Data</h1>
+	<p class="solo">Use the interactive interface below to manage your data.</p>
+<% end -%>
+
+<% content_for(:content) do %>
+	<h2>Upload data</h2>
+
+  <% semantic_form_for(@data_set) do |form| %>
+    <% content_tag(:ul, :class => 'form') do %>
+	    <%= form.input(:name, :input_html => { :class => 'text'}) %>
+		<%= form.input(:tag_list, :input_html => { :class => 'text'}, :hint => 'Needs to be separated by commas') %>
+	    <%= clear(:li) %>
+	    <%= form.input(:description, :input_html => { :rows => 6, :class => 'text'}) %>
+	    <%= clear(:li) %>
+		<% content_tag(:li, :class => 'reset') do %><ul>
+			<li class="spark-adv-control">
+				<%= label_tag(:visibility) %>
+				<%= select_tag(:visibility, options_for_select(%w(public private share), params[:visibility]), :id => 'visibility') %>
+			</li>
+			<% content_tag(:li, :id => 'select_groups', :style => (params['visibility'] == 'share') ? '' : 'display: none') do %>
+				<%= label_tag(:groups) %>
+				<%= select_tag(:groups, options_for_select((current_user.groups.approved - current_user.groups.default).collect{|group| [group.name, group.id.to_s]}, params[:groups]), :multiple => true) %>
+			<% end %>
+			<% content_tag(:li, :id => 's3_credentials', :class => 'w600', :style => ((params['visibility'] == 'private') or (params['visibility'] == 'share')) ? '' : 'display: none') do %>
+        <div style="float:left;">
+	        	<div style="float:left; width:150px; margin-right:20px">
+					<%= label_tag('s3_credentials[access_key_id]', 'Access Key Id') %>
+			    		<%= text_field_tag('s3_credentials[access_key_id]') %>
+            </div>
+	        	<div style="float:left; width:150px; margin-right:20px">
+					<%= label_tag('s3_credentials[secret_access_key]', 'Secret Access Key') %>
+		    			<%= text_field_tag('s3_credentials[secret_access_key]') %>
+            </div>
+				<%= clear %>
+    		</div>
+        <div style="float:left;">
+				<%= label_tag('s3_credentials[bucket]', 'Bucket') %>
+				<%= text_field_tag('s3_credentials[bucket]') %>
+			</div>
+			<% end %>
+		</ul><% end if current_user %>
+			<%= clear %>
+	
+	    <%= swf_upload_area 'Upload dataset &nbsp;', 
+	          :url => data_sets_path,
+	          :filetypes => '*.*',
+	          :single_file => true, 
+	          :post_params => 'data_set[name]:data_set_name, data_set[description]:data_set_description, data_set[tag_list]:data_set_tag_list' + ((current_user) ? ', visibility:visibility, s3_credentials[bucket]:s3_credentials_bucket, groups[]:groups, s3_credentials[access_key_id]:s3_credentials_access_key_id, s3_credentials[secret_access_key]:s3_credentials_secret_access_key' : ''),
+	          :button_style => 'font-family:Arial,Helvetica,sans-serif; font-size:13px; font-weight:bold; color:#ffffff;' %>
+        <%= content_tag(:span, 'or ' + link_to('Cancel', data_sets_path), :class => 'form-cancel') %>
+      <% end -%>
+	  <%= clear %>
+  <% end %>
+	<%= javascript_include_tag('data/new') if current_user %>
+<% end -%>
